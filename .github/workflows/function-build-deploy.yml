@@ -13,35 +13,36 @@ env:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
-    environment: development
-    
+    runs-on: ubuntu-latest        
     steps:
     - uses: actions/checkout@v2         
     
-#     - name: 'Set up Python ${{ env.PYTHON_VERSION }}'
-#       uses: actions/setup-python@v2
-#       with:
-#         python-version: '${{ env.PYTHON_VERSION }}'
+    - name: Upload artifacts for deployment
+      uses: actions/upload-artifact@v2
+      with:
+        name: app
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+  
+  Deploy:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: app
         
-#     - name: Install dependencies
-#       run: |
-#          pushd './${{ env.AZURE_WEBAPP_PACKAGE_PATH }}'
-#          python -m pip install --upgrade pip
-#          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-#          popd
-           
     - uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-                
-    # Deploy to Azure function   
+                     
     - name: 'Run Azure webapp deploy action using spn'
       uses: Azure/functions-action@v1
       id: fa
       with:
         app-name: ${{ vars.AZURE_FUNCTION_NAME }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}      
+        package: app 
         scm-do-build-during-deployment: true
         enable-oryx-build: true         
       
