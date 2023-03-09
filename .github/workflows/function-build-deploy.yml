@@ -43,7 +43,7 @@ jobs:
       id: fa
       with:
         app-name: ${{ vars.AZURE_FUNCTION_NAME }}
-        package: app 
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }} 
         scm-do-build-during-deployment: true
         enable-oryx-build: true         
       
